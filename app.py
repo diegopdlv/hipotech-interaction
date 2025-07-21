@@ -10,10 +10,12 @@ from hipotech_analysis.analysis_pipeline import generate_hipotech_reports
 
 st.set_page_config(page_title="Hipotech Report Runner", layout="centered")
 
+images_folder = Path("images_streamlit")
+
 # Show logo and title page
 col1, col2 = st.columns([1, 6])
 with col1:
-    st.image("emocionado.png", width=60)
+    st.image(f"{images_folder}/emocionado.png", width=60)
 with col2:
     st.markdown("## Generador de Reportes Hipotech")
 
