@@ -20,7 +20,7 @@ else
 
     if ! pip show hipotech_analysis &>/dev/null; then
         echo "📦 Installing wheel package..."
-        pip install dist/hipotech_analysis-0.1.0-py3-none-any.whl
+        pip install dist/hipotech_analysis-0.2.0-py3-none-any.whl
     else
         echo "✅ hipotech_analysis wheel already installed."
     fi
