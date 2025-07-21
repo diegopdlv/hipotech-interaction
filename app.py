@@ -5,10 +5,17 @@ import shutil
 import zipfile
 import io
 
+from PIL import Image
 from hipotech_analysis.analysis_pipeline import generate_hipotech_reports
 
 st.set_page_config(page_title="Hipotech Report Runner", layout="centered")
-st.title("📄 Hipotech Report Runner")
+
+# Show logo and title page
+col1, col2 = st.columns([1, 6])
+with col1:
+    st.image("emocionado.png", width=60)
+with col2:
+    st.markdown("## Generador de Reportes Hipotech")
 
 # Initialize state
 for key in ["pipeline_ran", "s3_keys", "csv_path", "output_dir"]:
@@ -18,20 +25,20 @@ for key in ["pipeline_ran", "s3_keys", "csv_path", "output_dir"]:
 # Step 1: Upload PDFs (Only show if not run yet)
 if not st.session_state.pipeline_ran:
 
-    st.header("Step 1: Upload Sentinel PDF Files")
+    st.header("Subir reportes Sentinel aqui")
     uploaded_files = st.file_uploader(
-        "Drag and drop multiple PDF files here or click to browse",
+        "Drag and drop de los reportes en pdf aqui o click en el buscador",
         type=["pdf"],
         accept_multiple_files=True,
         key="file_uploader"
     )
 
-    if st.button("🚀 Run pipeline"):
+    if st.button("🚀 Generar reportes"):
         if not uploaded_files:
-            st.warning("⚠️ Please upload at least one PDF file.")
+            st.warning("⚠️ Por favor sube al menos un archivo PDF.")
         else:
             try:
-                with st.spinner("⏳ Running the pipeline. Please wait..."):
+                with st.spinner("⏳ Generando reportes, por favor espere..."):
                     tmp_dir = Path(tempfile.mkdtemp())
                     output_dir = tmp_dir / "hipotech_reports"
                     csv_path = tmp_dir / "credit_score_data.csv"
@@ -59,26 +66,26 @@ if not st.session_state.pipeline_ran:
                 st.rerun()  # Force rerun to show result screen
 
             except Exception as e:
-                st.error(f"❌ Pipeline failed:\n{e}")
+                st.error(f"❌ Error en el procesamiento:\n{e}")
 
 # Step 2: Show Results
 elif st.session_state.pipeline_ran:
 
-    st.success(f"✅ Done! Generated {len(st.session_state.s3_keys)} reports.")
-    st.write("📂 S3 keys of final PDFs:")
+    st.success(f"✅ Listo! {len(st.session_state.s3_keys)} reportes generados.")
+    st.write("📂 Rutas de acceso en S3 para los PDFs generados:")
     st.write(st.session_state.s3_keys)
 
     # Download CSV
     if st.session_state.csv_path and Path(st.session_state.csv_path).exists():
         with open(st.session_state.csv_path, "rb") as f:
             st.download_button(
-                label="📄 Download CSV",
+                label="📄 Descargar CSV",
                 data=f,
                 file_name=Path(st.session_state.csv_path).name,
                 mime="text/csv"
             )
     else:
-        st.warning("⚠️ CSV file not found for download.")
+        st.warning("⚠️ Archivo CSV no encontrado para descarga.")
 
     # Download ZIP of PDFs
     pdf_files = list(Path(st.session_state.output_dir).glob("*.pdf"))
@@ -90,23 +97,23 @@ elif st.session_state.pipeline_ran:
         zip_buffer.seek(0)
 
         st.download_button(
-            label="📦 Download All PDFs as ZIP",
+            label="📦 Descargar todos los PDFs como ZIP",
             data=zip_buffer,
             file_name="hipotech_reports.zip",
             mime="application/zip"
         )
     else:
-        st.warning("⚠️ No PDF files found in the output directory.")
+        st.warning("⚠️ No se encontraron archivos PDF para descargar.")
 
     # Reset section
     st.markdown("---")
-    if st.button("🔄 Start New Request"):
+    if st.button("🔄 Iniciar Request nuevo"):
         # Clean up temp files
         try:
             if st.session_state.csv_path:
                 tmp_root = Path(st.session_state.csv_path).parent
                 shutil.rmtree(tmp_root)
         except Exception as e:
-            st.warning(f"⚠️ Cleanup failed: {e}")
+            st.warning(f"⚠️ Error al limpiar los archivos temporales: {e}")
         st.session_state.clear()
         st.rerun()
