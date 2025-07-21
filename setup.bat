@@ -1,7 +1,7 @@
 @echo off
 setlocal
 
-REM Check if Python is available
+REM === 1. Check if Python is available ===
 where python >nul 2>&1
 IF ERRORLEVEL 1 (
     echo [ERROR] Python not found. Please install Python and add it to PATH.
@@ -9,7 +9,7 @@ IF ERRORLEVEL 1 (
     exit /b
 )
 
-REM Define venv path
+REM === 2. Define venv path ===
 set VENV_DIR=venv
 
 IF EXIST "%VENV_DIR%\Scripts\activate.bat" (
@@ -43,6 +43,37 @@ IF EXIST "%VENV_DIR%\Scripts\activate.bat" (
     playwright install
 )
 
+REM === 3. Check for AWS CLI ===
+where aws >nul 2>&1
+IF ERRORLEVEL 1 (
+    echo [ERROR] AWS CLI not found. Please install AWS CLI and add it to PATH.
+    pause
+    exit /b
+)
+
+REM === 4. Check if AWS credentials exist ===
+set AWS_CREDENTIALS_FILE=%USERPROFILE%\.aws\credentials
+
+IF NOT EXIST "%AWS_CREDENTIALS_FILE%" (
+    echo [*] AWS credentials not found.
+    goto ConfigureAWS
+) ELSE (
+    findstr /C:"aws_access_key_id" "%AWS_CREDENTIALS_FILE%" >nul 2>&1
+    IF ERRORLEVEL 1 (
+        echo [*] AWS credentials file exists but no access key found.
+        goto ConfigureAWS
+    ) ELSE (
+        echo [OK] AWS credentials already configured.
+    )
+)
+
+goto RunApp
+
+:ConfigureAWS
+echo [*] Running aws configure...
+aws configure
+
+:RunApp
 echo [GO] Running the Streamlit app...
 streamlit run app.py
 
