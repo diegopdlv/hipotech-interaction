@@ -73,7 +73,7 @@ if not st.session_state.pipeline_ran:
 # Step 2: Show Results
 elif st.session_state.pipeline_ran:
 
-    st.success(f"✅ Listo! {len(st.session_state.s3_keys)} reportes generados.")
+    st.success(f"✅ Listo! {len(list(st.session_state.output_dir.iterdir()))} reportes generados.")
     st.write("📂 Rutas de acceso en S3 para los PDFs generados:")
     st.write(st.session_state.s3_keys)
 
