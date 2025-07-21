@@ -31,7 +31,7 @@ IF EXIST "%VENV_DIR%\Scripts\activate.bat" (
     pip show hipotech_analysis >nul 2>&1
     IF ERRORLEVEL 1 (
         echo [*] Installing wheel package...
-        pip install dist\hipotech_analysis-0.1.0-py3-none-any.whl
+        pip install dist\hipotech_analysis-0.2.0-py3-none-any.whl
     ) ELSE (
         echo [OK] hipotech_analysis wheel already installed.
     )
